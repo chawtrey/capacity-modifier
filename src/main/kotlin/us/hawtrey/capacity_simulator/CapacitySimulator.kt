@@ -1,5 +1,8 @@
+package us.hawtrey.capacity_simulator
+
 import kotlin.random.Random
 
+@Suppress("UNUSED_PARAMETER")
 fun main(args: Array<String>) {
     CapacitySimulator().runSim()
 }
@@ -7,47 +10,50 @@ fun main(args: Array<String>) {
 class CapacitySimulator {
     private val oneYear = 365
     private val startMon = Month.JAN
-    private val backFillCnt = oneYear * 2 - 1 // roughly 2 years
+    private val backFillCnt = oneYear * 2 - 1 // subtract 1 to make it 0 based
 
-    fun runSim(range: Int = 30, rangePercent: Double = 0.2, yearsToRun: Int = 10) {
+    fun runSim(
+        range: Int = 30,
+        rangePercent: Double = 0.2,
+        yearsToRun: Int = 10,
+        shouldAddThreshold: Double = 1.0
+    ) {
         val runCnt = oneYear * yearsToRun - 1
 
         val midRange = range / 2
 
-        val pastLeads = mutableListOf<Int>()
-
-        backFillLeadData(pastLeads)
+        val leads = backFillLeadData()
 
         for (idx in 0..runCnt) {
-            val today = pastLeads.size
-            val currentCount = pastLeads.subList(today - midRange, today).sum()
+            val today = leads.size
+            val currentCount = leads.subList(today - midRange, today).sum()
             val trailingCount =
-                pastLeads.subList(today - midRange - range - 1, today - midRange - 1).sum()
+                leads.subList(today - midRange - range - 1, today - midRange - 1).sum()
             val yoyCurrentCount =
-                pastLeads.subList(today - midRange - oneYear, today + midRange - oneYear).sum()
-            val yoyTrailingCount =
-                pastLeads.subList(
-                    today - midRange - range - 1 - oneYear,
-                    today - midRange - 1 - oneYear
-                ).sum()
+                leads.subList(today - midRange - oneYear, today + midRange - oneYear).sum()
+            val yoyTrailingCount = leads.subList(
+                today - midRange - range - 1 - oneYear, today - midRange - 1 - oneYear
+            ).sum()
 
             val expectedCount =
                 (trailingCount.toDouble() / yoyTrailingCount.toDouble()) * yoyCurrentCount
             val expectedCountFloor = expectedCount - (expectedCount * rangePercent)
 
             val capacityMultiplier = expectedCountFloor / (2 * currentCount)
-            val shouldAdd = capacityMultiplier >= 1.0
 
-            if (shouldAdd) pastLeads.add(1) else pastLeads.add(0)
+            val shouldAdd = capacityMultiplier >= shouldAddThreshold
+            if (shouldAdd) leads.add(1) else leads.add(0)
         }
 
-        printLeads(pastLeads)
+        printLeads(leads)
     }
 
-    private fun backFillLeadData(pastLeads: MutableList<Int>) {
+    private fun backFillLeadData(): MutableList<Int> {
         var currentMon = startMon
         var currentMonIdx = startMon.idx
         var currentDay = 0
+
+        val pastLeads = mutableListOf<Int>()
 
         for (idx in 0..backFillCnt) {
             currentDay++
@@ -62,10 +68,11 @@ class CapacitySimulator {
                 currentDay = 0
             }
         }
+
+        return pastLeads
     }
 
     private fun printLeads(pastLeads: MutableList<Int>) {
-        println("***************")
         var currentMon = startMon
         var currentMonIdx = startMon.idx
         var currentDay = 0
@@ -88,25 +95,6 @@ class CapacitySimulator {
                 currentMon = Month.byIdx(currentMonIdx)
                 currentDay = 0
             }
-        }
-    }
-
-    private enum class Month(val idx: Int, val dayCount: Int, val backFillChance: Int) {
-        JAN(1, 31, 25),
-        FEB(2, 28, 25),
-        MAR(3, 31, 35),
-        APR(4, 30, 40),
-        MAY(5, 31, 45),
-        JUN(6, 30, 50),
-        JUL(7, 31, 50),
-        AUG(8, 31, 45),
-        SEP(9, 30, 35),
-        OCT(10, 31, 30),
-        NOV(11, 30, 25),
-        DEC(12, 31, 20);
-
-        companion object {
-            fun byIdx(idx: Int) = values().find { it.idx == idx }!!
         }
     }
 }
