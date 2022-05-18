@@ -1,7 +1,5 @@
 package us.hawtrey.capacity_simulator.db
 
-import java.sql.Connection
-import java.sql.DriverManager
 import java.time.LocalDate
 import java.time.Month
 import java.time.YearMonth
@@ -199,50 +197,7 @@ private fun leadsPerMonth(leadsPerYear: Int, yearMonth: YearMonth) =
 private fun buildInsert(agent: Agent, date: LocalDate?) =
     "insert into opp_records(name, date) values ('${agent.name}', '${date}')"
 
-class Accessor {
-    private val connection: Connection
-
-    init {
-//        Class.forName("org.h2.Driver")
-//        connection = DriverManager.getConnection("jdbc:h2:~/connection_simulator_h2db", "sa", "")
-        Class.forName("org.postgresql.Driver")
-        connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/capacity", "test", "")
-    }
-
-    fun update(sqlStatement: String) = update(listOf(sqlStatement))
-
-    fun update(sqlStatements: List<String>) {
-        val statement = connection.createStatement()
-        try {
-            sqlStatements.forEach {
-                statement.executeUpdate(it)
-            }
-        } finally {
-            statement.close()
-        }
-    }
-
-    fun count(sqlStatement: String): Int {
-        val statement = connection.createStatement()
-        try {
-            val resultSet = statement.executeQuery(sqlStatement)
-            while (resultSet.next()) {
-                return resultSet.getInt("cnt")
-            }
-        } finally {
-            statement.close()
-        }
-        return 0
-    }
-
-    fun close() {
-        connection.close()
-    }
-}
-
-data class Agent(val name: String, var score: Double, val leadsPerYear: Int = 0)
-
-val distro = mapOf(
+private val distro = mapOf(
     Month.JANUARY to 0.07,
     Month.FEBRUARY to 0.07,
     Month.MARCH to 0.08,
