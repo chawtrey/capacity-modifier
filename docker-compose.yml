@@ -1,0 +1,14 @@
+version: '3.7'
+services:
+  postgres:
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=test
+      - POSTGRES_DB=capacity
+      - DB=capacity
+      - DB_ADAPTER=postgresql
+      - DB_PORT=5432
+      - DB_PASSWORD=
+      - POSTGRES_HOST_AUTH_METHOD=trust      
+    ports:
+      - 5432:5432
