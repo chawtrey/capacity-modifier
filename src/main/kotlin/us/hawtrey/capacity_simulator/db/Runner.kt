@@ -23,27 +23,20 @@ class Runner(private val accessor: Accessor) {
     private val startDay: LocalDate = LocalDate.parse("2022-01-01")
     private val startDayYM: YearMonth = YearMonth.from(startDay)
 
-//    private val agents = listOf(
-//        Agent("Matthew", 0.88, 450),
-//        Agent("Mark", 0.77, 400),
-//        Agent("Luke", 0.76, 480),
-//        Agent("John", 0.65, 500),
-//        Agent("Mary", 0.64, 510),
-//        Agent("Paul", 0.53, 300)
-//    )
     private val agents = listOf(
-        Agent("a01-95", 0.95, 100),
-        Agent("a02-94", 0.94, 100),
-        Agent("a03-90", 0.90, 100),
-        Agent("a04-89", 0.89, 100),
-        Agent("a05-87", 0.87, 100),
-        Agent("a06-84", 0.84, 100),
-        Agent("a07-81", 0.81, 100),
-        Agent("a08-75", 0.75, 100),
-        Agent("a09-71", 0.71, 100),
-        Agent("a10-68", 0.68, 100),
-        Agent("a11-67", 0.67, 100),
-        Agent("a12-65", 0.65, 100)
+        Agent("a-95", 0.95, 152),
+//        Agent("a-94", 0.94, 100),
+        Agent("a-90", 0.90, 152),
+//        Agent("a-89", 0.89, 100),
+//        Agent("a-87", 0.87, 100),
+        Agent("a-85", 0.85, 152),
+        Agent("a-80", 0.80, 152),
+        Agent("a-75", 0.75, 152),
+        Agent("a-70", 0.70, 152),
+//        Agent("a-68", 0.68, 100),
+//        Agent("a-67", 0.67, 280),
+        Agent("a-65", 0.65, 152),
+        Agent("a-00", 0.0, 0)
     )
 
 //    Simulation variables
@@ -84,37 +77,43 @@ class Runner(private val accessor: Accessor) {
                 val rankedAgents =
                     agents.map { modifyAgentScore(it, today) }.sortedByDescending { it.score }
                 val inserts =
-                    rankedAgents.filterIndexed { idx, _ -> idx < 3  }.map { buildInsert(it, today) }
+                    rankedAgents.filterIndexed { idx, _ -> idx < 3 }.map { buildInsert(it, today) }
                 accessor.update(inserts)
             }
         }
     }
 
     private fun modifyAgentScore(agent: Agent, today: LocalDate): Agent {
-        val currentCount = leadCountForRange(agent, today.withDayOfMonth(1), today)
+        val currentCount = leadCountForRange(agent, today.withDayOfYear(1), today)
         val expectedCount = calculateExpectedCount(today, agent)
-        val percentThru = today.dayOfMonth.toDouble() / today.lengthOfMonth().toDouble()
+        val percentThru = today.dayOfYear.toDouble() / today.lengthOfYear().toDouble()
         val relativeCount = (percentThru * expectedCount).toInt()
 
         val multiplier = calculateSimpleMultiplier(currentCount, relativeCount)
-        val score = agent.score * multiplier
+        val score = calculateScore(agent.score, multiplier)
         if (today.dayOfMonth == 15)
             println("agent = ${agent.name} - currentCount = $currentCount - expectedCount = $expectedCount - relativeCount = $relativeCount - multiplier = $multiplier - score = ${agent.score} * $multiplier = $score")
         return Agent(agent.name, score)
     }
 
+    private fun calculateScore(mlScore: Double, multiplier: Double): Double {
+        val xScore = if (mlScore == 0.0) 0.82 else mlScore
+        return xScore * multiplier
+    }
+
     private fun calculateSimpleMultiplier(currentCount: Int, relativeCount: Int): Double {
         return when {
-            currentCount < minMonthlyLeads  -> 100.0
+            currentCount < minMonthlyLeads -> 100.0
 //            currentCount < relativeCount -> 1.0
 //            currentCount < relativeCount -> calculateArcTanMultiplier(currentCount, relativeCount)
 //            currentCount <= relativeCount -> 1.0 / (currentCount.toDouble() / relativeCount.toDouble())
-//            currentCount > (relativeCount * 2) -> 0.1
+//            currentCount > (relativeCount + (relativeCount )) -> 0.1
 //            else -> 0.5
             else -> calculateStraightMultiplier(currentCount, relativeCount)
 //            else -> calculateArcTanMultiplier(currentCount, relativeCount)
         }
     }
+
     private fun calculateStraightMultiplier(currentCount: Int, relativeCount: Int): Double {
         val xPrime = currentCount.toDouble() / relativeCount.toDouble()
         val x = when {
@@ -122,7 +121,7 @@ class Runner(private val accessor: Accessor) {
             xPrime < 0 -> 0.0
             else -> xPrime
         }
-        return -0.9 * (x - 1.0) + 1.0
+        return -1 * (x - 1.0) + 0.5
     }
 
     private fun calculateArcTanMultiplier(currentCount: Int, relativeCount: Int): Double {
@@ -136,14 +135,20 @@ class Runner(private val accessor: Accessor) {
     }
 
     private fun calculateExpectedCount(today: LocalDate, agent: Agent): Double {
-        val trailingDay = today.minusMonths(1)
+//        val trailingDay = today.minusMonths(1)
+//        val trailingCount = leadCountForRange(
+//            agent,
+//            trailingDay.withDayOfMonth(1),
+//            trailingDay.withDayOfMonth(trailingDay.lengthOfMonth())
+//        )
+        val trailingDay = today.minusYears(1)
         val trailingCount = leadCountForRange(
             agent,
-            trailingDay.withDayOfMonth(1),
-            trailingDay.withDayOfMonth(trailingDay.lengthOfMonth())
+            trailingDay.withDayOfYear(1),
+            trailingDay.withDayOfYear(trailingDay.lengthOfYear())
         )
 
-        return trailingCount.toDouble()
+        return if (trailingCount < 60) 60.0 else trailingCount.toDouble()
 //        val yoyDay = today.minusYears(1)
 //        val yoyCurrentCount = leadCountForRange(
 //            agent, yoyDay.withDayOfMonth(1), yoyDay.withDayOfMonth(yoyDay.lengthOfMonth())

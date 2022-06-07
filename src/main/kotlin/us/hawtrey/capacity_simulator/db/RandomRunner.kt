@@ -25,18 +25,18 @@ class RandomRunner(private val accessor: Accessor) {
     private val startDayYM: YearMonth = YearMonth.from(startDay)
 
     private val agents = listOf(
-        Agent("a01-95", 0.95, 1000),
-        Agent("a02-94", 0.94, 800),
-        Agent("a03-90", 0.90, 110),
-        Agent("a04-89", 0.89, 98),
-        Agent("a05-87", 0.87, 415),
-        Agent("a06-84", 0.84, 120),
-        Agent("a07-81", 0.81, 500),
-        Agent("a08-75", 0.75, 700),
-        Agent("a09-71", 0.71, 820),
-        Agent("a10-68", 0.68, 100),
-        Agent("a11-67", 0.67, 60),
-        Agent("a12-65", 0.65, 60)
+        Agent("a-95", 0.95, 1000),
+        Agent("a-94", 0.94, 800),
+        Agent("a-90", 0.90, 110),
+        Agent("a-89", 0.89, 98),
+        Agent("a-87", 0.87, 415),
+        Agent("a-84", 0.84, 120),
+        Agent("a-81", 0.81, 500),
+        Agent("a-75", 0.75, 700),
+        Agent("a-71", 0.71, 820),
+        Agent("a-68", 0.68, 100),
+        Agent("a-67", 0.67, 60),
+        Agent("a-65", 0.65, 60)
     )
 
 //    Simulation variables
