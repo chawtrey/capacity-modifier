@@ -1,6 +1,6 @@
 @file:Suppress("DuplicatedCode")
 
-package us.hawtrey.capacity_simulator.db
+package us.hawtrey.capacity_simulator
 
 import java.time.LocalDate
 import java.time.Month
@@ -11,14 +11,14 @@ import kotlin.math.roundToInt
 import kotlin.random.Random
 
 
-fun main(args: Array<String>) {
-    val accessor = Accessor()
-    try {
-        RandomRunner(accessor).run()
-    } finally {
-        accessor.close()
-    }
-}
+//fun main(args: Array<String>) {
+//    val accessor = Accessor()
+//    try {
+//        RandomRunner(accessor).run()
+//    } finally {
+//        accessor.close()
+//    }
+//}
 
 class RandomRunner(private val accessor: Accessor) {
     private val startDay: LocalDate = LocalDate.parse("2022-01-01")

@@ -2,10 +2,10 @@ package us.hawtrey.capacity_simulator
 
 import kotlin.random.Random
 
-@Suppress("UNUSED_PARAMETER")
-fun main(args: Array<String>) {
-    CapacitySimulator().runSim(shouldAddThreshold = 1.0)
-}
+//@Suppress("UNUSED_PARAMETER")
+//fun main(args: Array<String>) {
+//    CapacitySimulator().runSim(shouldAddThreshold = 1.0)
+//}
 
 class CapacitySimulator {
     private val oneYear = 365

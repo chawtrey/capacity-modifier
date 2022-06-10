@@ -27,16 +27,26 @@
       <version>${kotlin.version}</version>
     </dependency>
 
-<!--    <dependency>-->
-<!--      <groupId>org.atteo.moonshine</groupId>-->
-<!--      <artifactId>h2</artifactId>-->
-<!--      <version>1.2</version>-->
-<!--    </dependency>-->
-
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
       <version>42.3.4</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jooq</groupId>
+      <artifactId>jooq</artifactId>
+      <version>3.16.6</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jooq</groupId>
+      <artifactId>jooq-meta</artifactId>
+      <version>3.16.6</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jooq</groupId>
+      <artifactId>jooq-codegen</artifactId>
+      <version>3.16.6</version>
     </dependency>
 
     <dependency>
@@ -76,6 +86,54 @@
             <goals>
               <goal>test-compile</goal>
             </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.jooq</groupId>
+        <artifactId>jooq-codegen-maven</artifactId>
+        <executions>
+          <execution>
+            <configuration>
+              <generator>
+                <database>
+                  <forcedTypes>
+                  </forcedTypes>
+                  <includes>.*</includes>
+                  <inputSchema>public</inputSchema>
+                  <name>org.jooq.meta.postgres.PostgresDatabase</name>
+                </database>
+                <generate>
+                  <daos>true</daos>
+                  <pojos>true</pojos>
+                  <fluentSetters>true</fluentSetters>
+                  <javaTimeTypes>true</javaTimeTypes>
+                  <interfaces>false</interfaces>
+                  <globalObjectReferences>false</globalObjectReferences>
+                  <jpaAnnotations>false</jpaAnnotations>
+                  <springAnnotations>false</springAnnotations>
+                  <generatedAnnotation>false</generatedAnnotation>
+                  <validationAnnotations>false</validationAnnotations>
+                </generate>
+                <name>org.jooq.codegen.KotlinGenerator</name>
+                <target>
+                  <directory>${project.build.directory}/generated-sources/jooq</directory>
+                  <encoding>UTF-8</encoding>
+                  <packageName>us.hawtrey.capacity_simulator.jooq</packageName>
+                </target>
+              </generator>
+              <jdbc>
+                <driver>org.postgresql.Driver</driver>
+                <password/>
+                <url>jdbc:postgresql://localhost:5432/capacity</url>
+                <user>test</user>
+              </jdbc>
+            </configuration>
+            <goals>
+              <goal>generate</goal>
+            </goals>
+            <id>jooq-generate</id>
+            <phase>generate-sources</phase>
           </execution>
         </executions>
       </plugin>

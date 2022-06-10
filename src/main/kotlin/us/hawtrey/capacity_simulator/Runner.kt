@@ -1,4 +1,4 @@
-package us.hawtrey.capacity_simulator.db
+package us.hawtrey.capacity_simulator
 
 import java.time.LocalDate
 import java.time.Month
@@ -10,38 +10,39 @@ import kotlin.math.roundToInt
 import kotlin.random.Random
 
 
-fun main(args: Array<String>) {
-    val accessor = Accessor()
-    try {
-        Runner(accessor).run()
-    } finally {
-        accessor.close()
-    }
-}
+//fun main(args: Array<String>) {
+//    val accessor = Accessor()
+//    try {
+//        Runner(accessor).run()
+//    } finally {
+//        accessor.close()
+//    }
+//}
 
 class Runner(private val accessor: Accessor) {
     private val startDay: LocalDate = LocalDate.parse("2022-01-01")
     private val startDayYM: YearMonth = YearMonth.from(startDay)
 
     private val agents = listOf(
-        Agent("a-95", 0.95, 152),
+        Agent("a-95", 0.95, 122),
 //        Agent("a-94", 0.94, 100),
-        Agent("a-90", 0.90, 152),
+        Agent("a-90", 0.90, 122),
 //        Agent("a-89", 0.89, 100),
 //        Agent("a-87", 0.87, 100),
-        Agent("a-85", 0.85, 152),
-        Agent("a-80", 0.80, 152),
-        Agent("a-75", 0.75, 152),
-        Agent("a-70", 0.70, 152),
+        Agent("a-85", 0.85, 122),
+        Agent("a-82", 0.82, 122),
+        Agent("a-80", 0.80, 122),
+        Agent("a-75", 0.75, 122),
+        Agent("a-70", 0.70, 122),
 //        Agent("a-68", 0.68, 100),
 //        Agent("a-67", 0.67, 280),
-        Agent("a-65", 0.65, 152),
+        Agent("a-65", 0.65, 122),
         Agent("a-00", 0.0, 0)
     )
 
 //    Simulation variables
 
-    private val yearsToRun = 5L
+    private val yearsToRun = 7L
     private val backFillYears = 1L
     private val minMonthlyLeads = 1
     private val capPercent = 0.15
